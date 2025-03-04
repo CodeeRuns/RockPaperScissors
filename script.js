@@ -1,101 +1,125 @@
-let playerScore = 0;
-let computerScore = 0;
+function getRandomNumber(max) {
+  return Math.floor(Math.random() * max);
+}
 
 function getComputerChoice() {
-    let computerChoice = Math.floor(Math.random() * 3) + 1;
-  
-    if (computerChoice === 1) {
-      return "rock";
-    } else if (computerChoice === 2) {
-      return "paper";
-    } else if (computerChoice === 3) {
-      return "scissors";
-    }
-  } 
-  function getPlayerChoice() {
-    let playerChoice = prompt("Please slect your option: Rock, Paper or Scissors?");
-  
-    // Exit the function if user selects cancel
-    if (playerChoice === null) {
-      return null;
-    }
-  
-    // Convert any input to lowercase
-    playerChoice = playerChoice.toLowerCase(); 
-  
-    // Check if the input is a valid choice
-    // Continue asking until a valid choice is inputted
-    if (
-      playerChoice === "rock" ||
-      playerChoice === "paper" ||
-      playerChoice === "scissors"
-    ) {
-      return playerChoice; 
-    } else {
-      console.log("Enter a valid choice: rock, paper or scissors.");
-      return getPlayerChoice(); 
-    }
+  let choice;
+
+  let randomNum = getRandomNumber(3);
+
+  if (randomNum === 0) {
+      choice = "rock";
   }
-  
-  function playRound(playerChoice, computerChoice) {
-    console.log(`You chose ${playerChoice}, Computer chose ${computerChoice}`);
-  
-    if (playerChoice === computerChoice) {
-      console.log("It's a tie!");
+    else if (randomNum === 1) {
+      choice = "paper";
+  }
+    else {
+      choice = "scissors";
+    }
+  return choice;
+}
+
+function playRound(humanChoice, computerChoice) {
+  if (humanChoice === computerChoice) {
       return 0;
-    } else if (
-      (playerChoice === "rock" && computerChoice === "scissors") ||
-      (playerChoice === "paper" && computerChoice === "rock") ||
-      (playerChoice === "scissors" && computerChoice === "paper")
-    ) {
-      console.log("You win!");
+  }
+
+  else if (humanChoice === "rock" && computerChoice === "scissors") {
       return 1;
-    } else if (
-      (computerChoice === "rock" && playerChoice === "scissors") ||
-      (computerChoice === "paper" && playerChoice === "rock") ||
-      (computerChoice === "scissors" && playerChoice === "paper")
-    ) {
-      console.log("Computer wins!");
+  }
+
+  else if (humanChoice === "paper" && computerChoice === "rock") {
+      return 1;
+  }
+
+  else if (humanChoice === "scissors" && computerChoice === "paper") {
+      return 1;
+  }
+
+  else {
       return 2;
-    }
   }
-  
-  function playGame() {
-    // Flag to check if game was cancelled
-    let gameCancelled = false; 
-  
-    for (let i = 0; i < 5; i++) {
-      const playerSelection = getPlayerChoice();
-  
-      // If user cancels the game, stop the game immediately
-      if (playerSelection === null) {
-        console.log(
-          "Are you sure you would like to cancel the game? To change your mind, hit refresh and go again!"
-        );
-        // Set flag to true
-        gameCancelled = true; 
-        // Exit the loop, ending the game
-        break; 
-      }
-  
-      const computerSelection = getComputerChoice();
-      let result = playRound(playerSelection, computerSelection);
-  
-      if (result === 1) playerScore++;
-      if (result === 2) computerScore++;
-      console.log(`Your Score: ${playerScore}. Computer Score: ${computerScore}`);
-    }
-  
-    // Only display the final result if the game wasn't cancelled
-    if (!gameCancelled) {
-      if (playerScore === computerScore) {
-        console.log("You have hit a draw! Refresh the page to play again!");
-      } else if (playerScore > computerScore) {
-        console.log("Congratulations! You have out-smarted technology. Refresh the page to play again!");
-      } else if (playerScore < computerScore) {
-        console.log("So sorry, technology has beaten you this time. Refresh the page to play again!");
-      }
-    }
+}
+
+function getWinner(humanScore, computerScore) {
+  if (humanScore === 5) {
+      displayWinner.textContent = "Congratulations! You have won the game!";
   }
+
+  else if (computerScore === 5) {
+      displayWinner.textContent = "So sorry, you lose. Hit refresh to try again!";
+  }   
+  body.appendChild(displayWinner);
+}
+
+const body = document.querySelector("body");
+const para = document.createElement("p");
+para.textContent = "What's your bet? Rock, Paper or Scissors?:";
+
+const div = document.createElement("div");
+const displayRound = document.createElement("div");
+const scoreDiv = document.createElement("div");
+const displayWinner = document.createElement("div");
+
+const rock = document.createElement("button");
+const paper = document.createElement("button");
+const scissors = document.createElement("button");
+
+
+rock.textContent = "Rock";
+paper.textContent = "Paper";
+scissors.textContent = "Scissors";
+
+body.appendChild(para);
+body.appendChild(div);
+div.appendChild(rock);
+div.appendChild(paper);
+div.appendChild(scissors); 
+
+let humanScore = 0, computerScore = 0;
+
+let result;
   
-  playGame();
+rock.addEventListener("click", () => {   
+  result = playRound("rock", getComputerChoice());
+  updateScore(result);
+});
+
+paper.addEventListener("click", () => {   
+  result = playRound("paper", getComputerChoice());
+  updateScore(result);
+});
+
+scissors.addEventListener("click", () => {
+  result = playRound("scissors", getComputerChoice());
+  updateScore(result);
+});
+
+function updateScore(result) {
+  
+  if (result === 1) {
+      displayRound.textContent = "This round is yours!";
+      humanScore++;
+  } else if (result === 2) {
+      displayRound.textContent = "Better luck next round!";
+      computerScore++;
+  } else {
+      displayRound.textContent = "Even Stevens!";
+  }
+
+  scoreDiv.textContent = `Score - You: ${humanScore} | Computer: ${computerScore}`;
+
+  body.appendChild(displayRound);
+  body.appendChild(scoreDiv);
+
+  if (humanScore === 5 || computerScore === 5) {
+      getWinner(humanScore, computerScore);
+      disableButtons();
+  }
+}
+
+function disableButtons() {
+  rock.disabled = true;
+  paper.disabled = true;
+  scissors.disabled = true;
+}
